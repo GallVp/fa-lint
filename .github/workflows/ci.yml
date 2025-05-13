@@ -5,6 +5,8 @@ on:
     branches: [ "main" ]
   pull_request:
 
+env:
+  TERM: xterm
 jobs:
 
   build:
