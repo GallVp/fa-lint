@@ -13,6 +13,5 @@ repos:
         language: system
         entry: >
           go fmt
-        always_run: true
         fail_fast: true
         files: \.go$
