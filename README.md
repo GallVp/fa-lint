@@ -11,3 +11,32 @@
 7. Sequence lines may not contain whitespace, numbers, or non-sequence characters. In other words, they must only contain the characters [A-Z] and [a-z].
 8. Sequence lines can end with a new line or return depending on whether you have edited this file on a mac, pc, or linux machine.
 9. Sequence lines can not be empty.
+
+## Usage
+
+```bash
+fa-lint:
+  -fasta string
+        Fasta file to process
+  -threads int
+        Number of threads to use (default 6)
+  -verbose
+        Enable verbose logging
+  -version
+        Show version
+```
+
+## Threads Benchmark
+
+Performed on a Apple M1 Pro 10 CPU 32 GB Machine. Recommended threads 6.
+
+| Size | Threads | Time (sec) |
+|:------------:|:------------:|:-----------:|
+| 55M | 1 | 1.7 |
+| 55M | 2 | 1.2|
+| 55M | 4 | 0.9 |
+| 55M | 6 | 0.8 |
+| 850M | 1 | 27 |
+| 850M | 2 | 14 |
+| 850M | 4 | 8 |
+| 850M | 6 | 6 |

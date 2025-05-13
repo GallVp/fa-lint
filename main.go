@@ -18,7 +18,7 @@ var version = "dev"
 func main() {
 
 	// Command line flags
-	threads := flag.Int("threads", 4, "Number of threads to use")
+	threads := flag.Int("threads", 6, "Number of threads to use")
 	versionFlag := flag.Bool("version", false, "Show version")
 	fastaFile := flag.String("fasta", "", "Fasta file to process")
 	verbose := flag.Bool("verbose", false, "Enable verbose logging")
