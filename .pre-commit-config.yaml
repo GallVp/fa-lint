@@ -13,5 +13,4 @@ repos:
         language: system
         entry: >
           go fmt
-        fail_fast: true
         files: \.go$
