@@ -123,6 +123,10 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 		seqBuilder.WriteString(line)
 	}
 
+	if lineNumber == 0 {
+		log.Fatal("Fasta file is empty")
+	}
+
 	recordChannel <- FastaRecord{ID: fastaID, Seq: seqBuilder.String(), StartsAtLine: fastaIDLineNumber, endsAtLine: lineNumber}
 
 	log.Infof("Parsed %d lines from fasta file", lineNumber)
