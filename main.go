@@ -188,6 +188,7 @@ func (record FastaRecord) validateRecordImpl() {
 
 	log.Infof("Sequence %s has %d line(s)", record.ID, len(seqLines))
 
+	var numberOfNLines = 0
 	for i, line := range seqLines {
 		if len(line) == 0 {
 			log.Fatalf("Empty sequence line near line #%d", record.StartsAtLine+i+1)
@@ -200,11 +201,25 @@ func (record FastaRecord) validateRecordImpl() {
 		if i > 0 && i < len(seqLines)-1 && record.lineWrappingLength != len(line) && len(seqLines[i+1]) != 0 {
 			log.Fatalf("Sequence near line #%d violates preceding line wrapping length", record.StartsAtLine+i+1)
 		}
+
+		if isAllN(line) {
+			numberOfNLines += 1
+		}
+	}
+
+	if len(seqLines) == numberOfNLines {
+		log.Fatalf("Sequence near line #%d is completely masked: %s", record.StartsAtLine, record.ID)
 	}
 }
 
 func isValidSequence(seq string) bool {
 	pattern := `^[A-Za-z]+$`
+	re := regexp.MustCompile(pattern)
+	return re.MatchString(seq)
+}
+
+func isAllN(seq string) bool {
+	pattern := `^[Nn]+$`
 	re := regexp.MustCompile(pattern)
 	return re.MatchString(seq)
 }

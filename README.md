@@ -14,6 +14,7 @@
 8. Sequence lines can end with a new line or return depending on whether you have edited this file on a mac, pc, or linux machine.
 9. Sequence lines can not be empty.
 10. Sequence lines should have uniform line wrapping.
+11. Any sequence can not be completely hard masked with 'Nn's
 
 ## Usage
 
@@ -35,11 +36,7 @@ Performed on a Apple M1 Pro 10 CPU 32 GB Machine. Recommended threads 6.
 
 | Fasta size | Threads | Time (sec) |
 | :--------: | :-----: | :--------: |
-|    55M     |    1    |    1.7     |
-|    55M     |    2    |    1.2     |
-|    55M     |    4    |    0.9     |
-|    55M     |    6    |    0.8     |
-|    850M    |    1    |     27     |
-|    850M    |    2    |     14     |
-|    850M    |    4    |     8      |
-|    850M    |    6    |     6      |
+|    850M    |    6    |     11     |
+|    850M    |    4    |     14     |
+|    850M    |    2    |     26     |
+|    850M    |    1    |     47     |

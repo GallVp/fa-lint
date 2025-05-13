@@ -117,3 +117,10 @@ load 'libs/bats-assert/load'
   assert_output --partial 'Sequence near line #11 violates preceding line wrapping length'
   [ "$status" -eq 1 ]
 }
+
+@test "Fasta with a completely masked sequence should fail" {
+  run ./bin/fa-lint -fasta test/fasta/completely_masked.fasta
+  echo "$output"
+  assert_output --partial 'Sequence near line #4 is completely masked: a2'
+  [ "$status" -eq 1 ]
+}
