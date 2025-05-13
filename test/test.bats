@@ -76,14 +76,15 @@ load 'libs/bats-assert/load'
   [ "$status" -eq 1 ]
 }
 
+@test "Fasta file with duplicate ids and spaces should fail" {
+  run ./bin/fa-lint -fasta test/fasta/duplicates_with_spaces.fasta
+  echo "$output"
+  assert_output --partial 'Duplicate fasta ID found near line'
+  [ "$status" -eq 1 ]
+}
+
 # @test "Fasta file with spaces in the sequence should fail" {
 #   run ./bin/fa-lint -fasta test/fasta/space.fasta
-#   echo "$output"
-#   [ "$status" -ne 0 ]
-# }
-
-# @test "Fasta file with duplicate ids and spaces should fail" {
-#   run ./bin/fa-lint -fasta test/fasta/duplicates_with_spaces.fasta
 #   echo "$output"
 #   [ "$status" -ne 0 ]
 # }
