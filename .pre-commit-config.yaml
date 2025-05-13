@@ -5,14 +5,14 @@ repos:
       - id: prettier
         additional_dependencies:
           - prettier@3.2.5
-  
+
   - repo: local
     hooks:
-    - id: gofmt
-      name: GO formatting
-      language: system
-      entry: >
-        go fmt
-      always_run: true
-      fail_fast: true
-      pass_filenames: false
+      - id: gofmt
+        name: GO formatting
+        language: system
+        entry: >
+          go fmt
+        always_run: true
+        fail_fast: true
+        files: \.go$
