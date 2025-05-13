@@ -1,0 +1,33 @@
+name: Release
+permissions:
+  "contents": "write"
+
+on:
+  push:
+    tags:
+      - "**[0-9]+.[0-9]+.[0-9]+*"
+
+jobs:
+  build-and-release:
+    name: Build & Release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4.2.2
+        with:
+          submodules: true
+
+      - name: Set up Go
+        uses: actions/setup-go@v5.5.0
+        with:
+          go-version: "1.22"
+
+      - name: Set up bats
+        uses: mig4/setup-bats@v1.2.0
+
+      - name: Build
+        run: make cgo
+
+      - name: Upload release artifacts
+        uses: softprops/action-gh-release@v2.2.2
+        with:
+          files: bin/*.tar.gz
