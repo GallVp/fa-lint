@@ -1,5 +1,7 @@
 # FA-LINT
 
+[![Build & Test](https://github.com/GallVp/fa-lint/actions/workflows/ci.yml/badge.svg)](https://github.com/GallVp/fa-lint/actions/workflows/ci.yml)
+
 `fa-lint` is a Fasta linter/validator inspired by [py_fasta_validator](https://github.com/linsalrob/py_fasta_validator) and [SeqKit](https://bioinf.shenwei.me/seqkit). It adheres to the following rules,
 
 1. The Fasta must not be empty.
