@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
 	"runtime"
 	"strings"
 	"sync"
@@ -120,7 +121,11 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 		}
 
 		// Fasta sequence continues
-		seqBuilder.WriteString(line)
+		if seqBuilder.Len() < 1 {
+			seqBuilder.WriteString(line)
+		} else {
+			seqBuilder.WriteString("\n" + line)
+		}
 	}
 
 	if lineNumber == 0 {
@@ -174,6 +179,26 @@ func validateRecord(recordChannel <-chan FastaRecord, wg *sync.WaitGroup) {
 
 func (record FastaRecord) validateRecordImpl() {
 	if len(record.Seq) == 0 {
-		log.Errorf("Empty sequence for record near line #%d: %s", record.StartsAtLine, record.ID)
+		log.Fatalf("Empty sequence for record near line #%d: %s", record.StartsAtLine, record.ID)
 	}
+
+	seqLines := strings.Split(record.Seq, "\n")
+
+	log.Infof("Sequence %s has %d line(s)", record.ID, len(seqLines))
+
+	for i, line := range seqLines {
+		if len(line) == 0 {
+			log.Fatalf("Empty sequence line near line #%d", record.StartsAtLine+i+1)
+		}
+
+		if !isValidSequence(line) {
+			log.Fatalf("Invalid sequence character near line #%d", record.StartsAtLine+i+1)
+		}
+	}
+}
+
+func isValidSequence(seq string) bool {
+	pattern := `^[A-Za-z]+$`
+	re := regexp.MustCompile(pattern)
+	return re.MatchString(seq)
 }

@@ -83,26 +83,30 @@ load 'libs/bats-assert/load'
   [ "$status" -eq 1 ]
 }
 
-# @test "Fasta file with spaces in the sequence should fail" {
-#   run ./bin/fa-lint -fasta test/fasta/space.fasta
-#   echo "$output"
-#   [ "$status" -ne 0 ]
-# }
+@test "Fasta file with spaces in the sequence should fail" {
+  run ./bin/fa-lint -fasta test/fasta/space.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line'
+  [ "$status" -eq 1 ]
+}
 
-# @test "Fasta file with embedded PHP code should fail" {
-#   run ./bin/fa-lint -fasta test/fasta/code.fasta
-#   echo "$output"
-#   [ "$status" -ne 0 ]
-# }
+@test "Fasta file with embedded PHP code should fail" {
+  run ./bin/fa-lint -fasta test/fasta/code.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line #80'
+  [ "$status" -eq 1 ]
+}
 
-# @test "Fasta file with one empty sequence should fail" {
-#   run ./bin/fa-lint -fasta test/fasta/empty_seq.fasta
-#   echo "$output"
-#   [ "$status" -ne 0 ]
-# }
+@test "Fasta file with just an empty sequence should fail" {
+  run ./bin/fa-lint -fasta test/fasta/empty_seq.fasta
+  echo "$output"
+  assert_output --partial 'Empty sequence for record near line #1: 1'
+  [ "$status" -eq 1 ]
+}
 
-# @test "Fasta file with an empty sequence should fail" {
-#   run ./bin/fa-lint -fasta test/fasta/empty_seq2.fasta
-#   echo "$output"
-#   [ "$status" -ne 0 ]
-# }
+@test "Fasta file with an empty sequence should fail" {
+  run ./bin/fa-lint -fasta test/fasta/empty_seq2.fasta
+  echo "$output"
+  assert_output --partial 'Empty sequence for record near line #3: 2'
+  [ "$status" -eq 1 ]
+}
