@@ -110,3 +110,10 @@ load 'libs/bats-assert/load'
   assert_output --partial 'Empty sequence for record near line #3: 2'
   [ "$status" -eq 1 ]
 }
+
+@test "Fasta with non uniform line wrapping should fail" {
+  run ./bin/fa-lint -fasta test/fasta/non_uniform_wrapping.fasta
+  echo "$output"
+  assert_output --partial 'Sequence near line #11 violates preceding line wrapping length'
+  [ "$status" -eq 1 ]
+}

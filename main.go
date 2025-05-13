@@ -77,10 +77,10 @@ func main() {
 }
 
 type FastaRecord struct {
-	ID           string
-	Seq          string
-	StartsAtLine int
-	endsAtLine   int
+	ID                 string
+	Seq                string
+	StartsAtLine       int
+	lineWrappingLength int
 }
 
 func parseFasta(file string, recordChannel chan<- FastaRecord) {
@@ -95,6 +95,7 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 	var lineNumber int = 0
 	var fastaID string
 	var fastaIDLineNumber int
+	var lineWrappingLength int = 0
 
 	var seqBuilder strings.Builder
 
@@ -105,7 +106,7 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 		newFastaID := validateHeader(lineNumber, line, fastaIDs)
 
 		if newFastaID != "" && len(fastaIDs) > 1 { // Second fasta sequence starts
-			recordChannel <- FastaRecord{ID: fastaID, Seq: seqBuilder.String(), StartsAtLine: fastaIDLineNumber, endsAtLine: lineNumber - 1}
+			recordChannel <- FastaRecord{ID: fastaID, Seq: seqBuilder.String(), StartsAtLine: fastaIDLineNumber, lineWrappingLength: lineWrappingLength}
 
 			fastaID = newFastaID
 			fastaIDLineNumber = lineNumber
@@ -121,18 +122,19 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 		}
 
 		// Fasta sequence continues
+		lineWrappingLength = max(lineWrappingLength, len(line))
 		if seqBuilder.Len() < 1 {
 			seqBuilder.WriteString(line)
-		} else {
-			seqBuilder.WriteString("\n" + line)
+			continue
 		}
+		seqBuilder.WriteString("\n" + line)
 	}
 
 	if lineNumber == 0 {
 		log.Fatal("Fasta file is empty")
 	}
 
-	recordChannel <- FastaRecord{ID: fastaID, Seq: seqBuilder.String(), StartsAtLine: fastaIDLineNumber, endsAtLine: lineNumber}
+	recordChannel <- FastaRecord{ID: fastaID, Seq: seqBuilder.String(), StartsAtLine: fastaIDLineNumber, lineWrappingLength: lineWrappingLength}
 
 	log.Infof("Parsed %d lines from fasta file", lineNumber)
 }
@@ -193,6 +195,10 @@ func (record FastaRecord) validateRecordImpl() {
 
 		if !isValidSequence(line) {
 			log.Fatalf("Invalid sequence character near line #%d", record.StartsAtLine+i+1)
+		}
+
+		if i > 0 && i < len(seqLines)-1 && record.lineWrappingLength != len(line) && len(seqLines[i+1]) != 0 {
+			log.Fatalf("Sequence near line #%d violates preceding line wrapping length", record.StartsAtLine+i+1)
 		}
 	}
 }

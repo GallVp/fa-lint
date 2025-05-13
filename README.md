@@ -11,6 +11,7 @@
 7. Sequence lines may not contain whitespace, numbers, or non-sequence characters. In other words, they must only contain the characters [A-Z] and [a-z].
 8. Sequence lines can end with a new line or return depending on whether you have edited this file on a mac, pc, or linux machine.
 9. Sequence lines can not be empty.
+10. Sequence lines should have uniform line wrapping.
 
 ## Usage
 
