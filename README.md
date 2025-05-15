@@ -1,6 +1,12 @@
 # FA-LINT
 
 [![Build & Test](https://github.com/GallVp/fa-lint/actions/workflows/ci.yml/badge.svg)](https://github.com/GallVp/fa-lint/actions/workflows/ci.yml)
+[![Static Badge](https://img.shields.io/badge/Biocontainer-quay.io-blue)](https://quay.io/repository/biocontainers/fa-lint?tab=tags)
+
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/fa-lint/badges/version.svg)](https://anaconda.org/bioconda/fa-lint)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/fa-lint/badges/platforms.svg)](https://anaconda.org/bioconda/fa-lint)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/fa-lint/badges/license.svg)](https://anaconda.org/bioconda/fa-lint)
+[![Anaconda-Server Badge](https://anaconda.org/bioconda/fa-lint/badges/downloads.svg)](https://anaconda.org/bioconda/fa-lint)
 
 `fa-lint` is a Fasta linter/validator inspired by [py_fasta_validator](https://github.com/linsalrob/py_fasta_validator) and [SeqKit](https://bioinf.shenwei.me/seqkit). It adheres to the following rules,
 
