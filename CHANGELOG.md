@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Added`
 
 1. Now validation of zipped Fasta is also supported [#4](https://github.com/GallVp/fa-lint/issues/4)
+2. Now stop codons are also supported [#2](https://github.com/GallVp/fa-lint/issues/2)
 
 ### `Fixed`
 

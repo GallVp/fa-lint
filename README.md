@@ -21,13 +21,19 @@
 9. Sequence lines can not be empty.
 10. Sequence lines should have uniform line wrapping.
 11. Any sequence can not be completely hard masked with 'Nn's
+12. Last character of a sequence can be a stop codon denoted by '.' or '\*' (Optional via `-s`, `-S`)
+13. Sequences can include in frame stop codons (Optional via `-a`)
+14. Any sequence can not be comprised entirely of stop codons
 
 ## Usage
 
 ```bash
 fa-lint:
+  -S    Allow stop-codon denoted by '*' as the last character in a sequence
+  -a    Allow stop-codons anywhere in the sequence. Use in combination with -s or -S
   -fasta string
         Fasta file to process
+  -s    Allow stop-codon denoted by '.' as the last character in a sequence
   -threads int
         Number of threads to use (default 6)
   -verbose
