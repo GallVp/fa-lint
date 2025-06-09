@@ -26,7 +26,18 @@ func main() {
 	versionFlag := flag.Bool("version", false, "Show version")
 	fastaFile := flag.String("fasta", "", "Fasta file to process")
 	verbose := flag.Bool("verbose", false, "Enable verbose logging")
+	allowStop := flag.Bool("s", false, "Allow stop-codon denoted by '.' as the last character in a sequence")
+	allowSStop := flag.Bool("S", false, "Allow stop-codon denoted by '*' as the last character in a sequence")
+	allowAnyStop := flag.Bool("a", false, "Allow stop-codons anywhere in the sequence. Use in combination with -s or -S")
 	flag.Parse()
+
+	if *allowStop && *allowSStop {
+		log.Fatal("-s and -S are mutually exclusive. Specify -s or -S")
+	}
+
+	if *allowAnyStop && !(*allowStop || *allowSStop) {
+		log.Fatal("-a can only be used in combination with -s or -S")
+	}
 
 	if *versionFlag {
 		fmt.Println(version)
@@ -69,7 +80,7 @@ func main() {
 	var wg sync.WaitGroup
 	for range numWorkers {
 		wg.Add(1)
-		go validateRecord(recordChannel, &wg)
+		go validateRecord(*allowStop, *allowSStop, *allowAnyStop, recordChannel, &wg)
 	}
 
 	parseFasta(*fastaFile, recordChannel)
@@ -206,16 +217,16 @@ func validateHeader(lineNumber int, line string, fastaIDs map[string]struct{}) s
 	return fastaID
 }
 
-func validateRecord(recordChannel <-chan FastaRecord, wg *sync.WaitGroup) {
+func validateRecord(allowStop bool, allowSStop bool, allowAnyStop bool, recordChannel <-chan FastaRecord, wg *sync.WaitGroup) {
 	defer wg.Done()
 	for record := range recordChannel {
 		log.Infof("Processing record %s with length %d", record.ID, len(record.Seq))
-		record.validateRecordImpl()
+		record.validateRecordImpl(allowStop, allowSStop, allowAnyStop)
 		log.Infof("Finished processing record %s", record.ID)
 	}
 }
 
-func (record FastaRecord) validateRecordImpl() {
+func (record FastaRecord) validateRecordImpl(allowStop bool, allowSStop bool, allowAnyStop bool) {
 	if len(record.Seq) == 0 {
 		log.Fatalf("Empty sequence for record near line #%d: %s", record.StartsAtLine, record.ID)
 	}
@@ -224,13 +235,16 @@ func (record FastaRecord) validateRecordImpl() {
 
 	log.Infof("Sequence %s has %d line(s)", record.ID, len(seqLines))
 
-	var numberOfNLines = 0
+	var numberOfInvalidLines = 0
 	for i, line := range seqLines {
+
+		isLastLine := (i == len(seqLines)-1)
+
 		if len(line) == 0 {
 			log.Fatalf("Empty sequence line near line #%d", record.StartsAtLine+i+1)
 		}
 
-		if !isValidSequence(line) {
+		if !isValidSequence(line, isLastLine, allowStop, allowSStop, allowAnyStop) {
 			log.Fatalf("Invalid sequence character near line #%d", record.StartsAtLine+i+1)
 		}
 
@@ -238,24 +252,38 @@ func (record FastaRecord) validateRecordImpl() {
 			log.Fatalf("Sequence near line #%d violates preceding line wrapping length", record.StartsAtLine+i+1)
 		}
 
-		if isAllN(line) {
-			numberOfNLines += 1
+		if isAllInvalidSequence(line) {
+			numberOfInvalidLines += 1
 		}
 	}
 
-	if len(seqLines) == numberOfNLines {
-		log.Fatalf("Sequence near line #%d is completely masked: %s", record.StartsAtLine, record.ID)
+	if len(seqLines) == numberOfInvalidLines {
+		log.Fatalf("Sequence near line #%d is comprised entirely of N, n, '.' or '*': %s", record.StartsAtLine, record.ID)
 	}
 }
 
-func isValidSequence(seq string) bool {
-	pattern := `^[A-Za-z]+$`
+func isValidSequence(seq string, isLastLine bool, allowStop bool, allowSStop bool, allowAnyStop bool) bool {
+
+	var pattern string
+
+	if allowStop && allowAnyStop {
+		pattern = `^[A-Za-z\.]+$`
+	} else if allowSStop && allowAnyStop {
+		pattern = `^[A-Za-z\*]+$`
+	} else if allowStop && isLastLine {
+		pattern = `^[A-Za-z]+\.?$`
+	} else if allowSStop && isLastLine {
+		pattern = `^[A-Za-z]+\*?$`
+	} else {
+		pattern = `^[A-Za-z]+$`
+	}
+
 	re := regexp.MustCompile(pattern)
 	return re.MatchString(seq)
 }
 
-func isAllN(seq string) bool {
-	pattern := `^[Nn]+$`
+func isAllInvalidSequence(seq string) bool {
+	pattern := `^[Nn\.\*]+$`
 	re := regexp.MustCompile(pattern)
 	return re.MatchString(seq)
 }

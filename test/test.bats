@@ -121,14 +121,14 @@ load 'libs/bats-assert/load'
 @test "Fasta with a completely masked sequence should fail" {
   run ./bin/fa-lint -fasta test/fasta/completely_masked.fasta
   echo "$output"
-  assert_output --partial 'Sequence near line #4 is completely masked: a2'
+  assert_output --partial "Sequence near line #4 is comprised entirely of N, n, '.' or '*': a2"
   [ "$status" -eq 1 ]
 }
 
 @test "Zipped Fasta with a completely masked sequence should fail" {
   run ./bin/fa-lint -fasta test/fasta/completely_masked.fasta.gz
   echo "$output"
-  assert_output --partial 'Sequence near line #4 is completely masked: a2'
+  assert_output --partial "Sequence near line #4 is comprised entirely of N, n, '.' or '*': a2"
   [ "$status" -eq 1 ]
 }
 
@@ -137,4 +137,81 @@ load 'libs/bats-assert/load'
   echo "$output"
   assert_output --partial 'Fasta is valid'
   [ "$status" -eq 0 ]
+}
+
+@test "Fasta with a '.' stop codon should fail" {
+  run ./bin/fa-lint -fasta test/fasta/stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line #2'
+  [ "$status" -eq 1 ]
+}
+
+@test "Fasta with a '.' stop codon and -s should return 0" {
+  run ./bin/fa-lint -s -fasta test/fasta/stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Fasta is valid'
+  [ "$status" -eq 0 ]
+}
+
+@test "Fasta with a '*' stop codon should fail" {
+  run ./bin/fa-lint -fasta test/fasta/stop_s_codon.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line #2'
+  [ "$status" -eq 1 ]
+}
+
+@test "Fasta with a '*' stop codon and -S should return 0" {
+  run ./bin/fa-lint -S -fasta test/fasta/stop_s_codon.fasta
+  echo "$output"
+  assert_output --partial 'Fasta is valid'
+  [ "$status" -eq 0 ]
+}
+
+@test "Fasta with a anywhere '.' stop codon should fail" {
+  run ./bin/fa-lint -fasta test/fasta/anywhere_stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line #2'
+  [ "$status" -eq 1 ]
+}
+
+@test "Fasta with a anywhere '.' stop codon and -s, -a should return 0" {
+  run ./bin/fa-lint -a -s -fasta test/fasta/anywhere_stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Fasta is valid'
+  [ "$status" -eq 0 ]
+}
+
+@test "Fasta with a anywhere '*' stop codon should fail" {
+  run ./bin/fa-lint -fasta test/fasta/anywhere_s_stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line #2'
+  [ "$status" -eq 1 ]
+}
+
+@test "Fasta with a anywhere '*' stop codon and -S, -a should return 0" {
+  run ./bin/fa-lint -a -S -fasta test/fasta/anywhere_s_stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Fasta is valid'
+  [ "$status" -eq 0 ]
+}
+
+@test "Fasta with all '.' stop codons should fail" {
+  run ./bin/fa-lint -a -s -fasta test/fasta/all_stop_codon.fasta
+  echo "$output"
+  assert_output --partial "Sequence near line #1 is comprised entirely of N, n, '.' or '*': seq1_F"
+  [ "$status" -eq 1 ]
+}
+
+@test "Fasta with '.' at the end of multiple lines should fail" {
+  run ./bin/fa-lint -s -fasta test/fasta/multiline_stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line #2'
+  [ "$status" -eq 1 ]
+}
+
+@test "Fasta with '*' at the end of multiple lines should fail" {
+  run ./bin/fa-lint -S -fasta test/fasta/multiline_s_stop_codon.fasta
+  echo "$output"
+  assert_output --partial 'Invalid sequence character near line #2'
+  [ "$status" -eq 1 ]
 }
