@@ -2,8 +2,11 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
+	"io"
+	"math"
 	"os"
 	"regexp"
 	"runtime"
@@ -99,11 +102,28 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 
 	var seqBuilder strings.Builder
 
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
+	reader := bufio.NewReaderSize(f, math.MaxInt32)
+	for {
+
+		line, isPrefix, err := reader.ReadLine()
+
+		if errors.Is(err, io.EOF) {
+			break
+		}
+
+		if err != nil {
+			log.Fatalf("Error reading fasta file: %v", err)
+		}
+
+		if isPrefix {
+			log.Fatalf("Fasta contains a line longer than %d. Please split it into smaller lines", math.MaxInt32)
+		}
+
+		lineStr := string(line)
+
 		lineNumber++
-		line := scanner.Text()
-		newFastaID := validateHeader(lineNumber, line, fastaIDs)
+
+		newFastaID := validateHeader(lineNumber, lineStr, fastaIDs)
 
 		if newFastaID != "" && len(fastaIDs) > 1 { // Second fasta sequence starts
 			recordChannel <- FastaRecord{ID: fastaID, Seq: seqBuilder.String(), StartsAtLine: fastaIDLineNumber, lineWrappingLength: lineWrappingLength}
@@ -124,10 +144,10 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 		// Fasta sequence continues
 		lineWrappingLength = max(lineWrappingLength, len(line))
 		if seqBuilder.Len() < 1 {
-			seqBuilder.WriteString(line)
+			seqBuilder.WriteString(lineStr)
 			continue
 		}
-		seqBuilder.WriteString("\n" + line)
+		seqBuilder.WriteString("\n" + lineStr)
 	}
 
 	if lineNumber == 0 {
