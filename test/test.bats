@@ -124,3 +124,17 @@ load 'libs/bats-assert/load'
   assert_output --partial 'Sequence near line #4 is completely masked: a2'
   [ "$status" -eq 1 ]
 }
+
+@test "Zipped Fasta with a completely masked sequence should fail" {
+  run ./bin/fa-lint -fasta test/fasta/completely_masked.fasta.gz
+  echo "$output"
+  assert_output --partial 'Sequence near line #4 is completely masked: a2'
+  [ "$status" -eq 1 ]
+}
+
+@test "Good zipped fasta file should return 0" {
+  run ./bin/fa-lint -fasta test/fasta/good.fasta.gz
+  echo "$output"
+  assert_output --partial 'Fasta is valid'
+  [ "$status" -eq 0 ]
+}

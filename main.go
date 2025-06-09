@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"compress/gzip"
 	"errors"
 	"flag"
 	"fmt"
@@ -87,11 +88,26 @@ type FastaRecord struct {
 }
 
 func parseFasta(file string, recordChannel chan<- FastaRecord) {
-	f, err := os.Open(file)
-	if err != nil {
-		log.Fatal(err)
+	var err error
+	var fHandle *os.File
+
+	fHandle, err = os.Open(file)
+	errorOutIf(err)
+	defer fHandle.Close()
+
+	var ioReader io.Reader = fHandle
+
+	if strings.HasSuffix(file, ".gz") {
+		log.Infof("Detected gzipped fasta file: %s", file)
+
+		var gzReader *gzip.Reader
+		gzReader, err = gzip.NewReader(fHandle)
+		errorOutIf(err)
+		defer gzReader.Close()
+
+		ioReader = gzReader
 	}
-	defer f.Close()
+
 	defer close(recordChannel)
 
 	var fastaIDs = map[string]struct{}{}
@@ -102,7 +118,7 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 
 	var seqBuilder strings.Builder
 
-	reader := bufio.NewReaderSize(f, math.MaxInt32)
+	reader := bufio.NewReaderSize(ioReader, math.MaxInt32)
 	for {
 
 		line, isPrefix, err := reader.ReadLine()
@@ -242,4 +258,10 @@ func isAllN(seq string) bool {
 	pattern := `^[Nn]+$`
 	re := regexp.MustCompile(pattern)
 	return re.MatchString(seq)
+}
+
+func errorOutIf(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
 }
