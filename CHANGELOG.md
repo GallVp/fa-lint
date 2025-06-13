@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## v1.2.0 - [13-June-2025]
+
+### `Added`
+
+1. Added strict check for Fasta IDs [#11](https://github.com/GallVp/fa-lint/issues/11)
+
 ## v1.1.0 - [09-June-2025]
 
 ### `Added`

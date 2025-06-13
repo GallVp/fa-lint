@@ -215,3 +215,17 @@ load 'libs/bats-assert/load'
   assert_output --partial 'Invalid sequence character near line #2'
   [ "$status" -eq 1 ]
 }
+
+@test "Fasta file with lax ID characters should pass non-strict mode" {
+  run ./bin/fa-lint -fasta test/fasta/lax_id.fasta
+  echo "$output"
+  assert_output --partial 'Fasta is valid'
+  [ "$status" -eq 0 ]
+}
+
+@test "Fasta file with lax ID characters should fail strict mode" {
+  run ./bin/fa-lint -w -fasta test/fasta/lax_id.fasta
+  echo "$output"
+  assert_output --partial "Invalid FASTA ID"
+  [ "$status" -eq 1 ]
+}

@@ -10,24 +10,30 @@
 
 `fa-lint` is a Fasta linter/validator inspired by [py_fasta_validator](https://github.com/linsalrob/py_fasta_validator) and [SeqKit](https://bioinf.shenwei.me/seqkit). It adheres to the following rules,
 
-1. The Fasta must not be empty.
-2. The Fasta must start with `>`.
-3. Each header line starts with a `>`. The header precedes the sequence.
-4. The sequence identifier is the string of characters in the header line following the `>` and up to the first whitespace. Everything after the first whitespace is descriptive, and can be as long as you like.
-5. Each sequence identifier must be unique within the fasta file.
-6. Every other line is considered a sequence line.
-7. Sequence lines may not contain whitespace, numbers, or non-sequence characters. In other words, they must only contain the characters [A-Z] and [a-z].
-8. Sequence lines can end with a new line or return depending on whether you have edited this file on a mac, pc, or linux machine.
-9. Sequence lines can not be empty.
-10. Sequence lines should have uniform line wrapping.
-11. Any sequence can not be completely hard masked with 'Nn's
-12. Last character of a sequence can be a stop codon denoted by '.' or '\*' (Optional via `-s`, `-S`)
-13. Sequences can include in frame stop codons (Optional via `-a`)
-14. Any sequence can not be comprised entirely of stop codons
+1. **Not Empty**: File must not be empty.
+2. **Starts with `>`**: First line must begin with `>`.
+3. **Header Lines**: Each sequence starts with a header line (`>`).
+4. **Identifiers**: The ID is the word after `>` up to the first space. It must:
+   - Be unique
+   - When `-w` flag is set, it must:
+     - Start with a letter (A–Z or a–z)
+     - Contain only letters, digits, or underscores (`_`) when `-w` flag is set
+5. **Descriptions**: Text after the first space in a header is optional and free-form.
+6. **Sequence Lines**:
+   - Follow header lines
+   - Contain only \[A–Z, a–z] (no whitespace, digits, or other characters)
+   - Must not be empty
+   - Must use consistent line wrapping
+7. **Line Endings**: Can be LF (`\n`) or CRLF (`\r\n`)
+8. **Masking**: Sequences cannot be fully masked (i.e., all `N`/`n`)
+9. **Stop Codons**:
+   - Final `.`/`*` allowed if `-s`/`-S` is set
+   - In-frame stops allowed if `-a` is set
+   - Sequence must not be entirely stop codons
 
 ## Usage
 
-```bash
+```text
 fa-lint:
   -S    Allow stop-codon denoted by '*' as the last character in a sequence
   -a    Allow stop-codons anywhere in the sequence. Use in combination with -s or -S
@@ -40,6 +46,7 @@ fa-lint:
         Enable verbose logging
   -version
         Show version
+  -w    Enable strict alphanumeric FASTA ID validation (A-Za-z0-9_ only)
 ```
 
 ## Threads Benchmark

@@ -29,6 +29,7 @@ func main() {
 	allowStop := flag.Bool("s", false, "Allow stop-codon denoted by '.' as the last character in a sequence")
 	allowSStop := flag.Bool("S", false, "Allow stop-codon denoted by '*' as the last character in a sequence")
 	allowAnyStop := flag.Bool("a", false, "Allow stop-codons anywhere in the sequence. Use in combination with -s or -S")
+	wStrict := flag.Bool("w", false, "Enable strict alphanumeric FASTA ID validation (A-Za-z0-9_ only)")
 	flag.Parse()
 
 	if *allowStop && *allowSStop {
@@ -83,7 +84,7 @@ func main() {
 		go validateRecord(*allowStop, *allowSStop, *allowAnyStop, recordChannel, &wg)
 	}
 
-	parseFasta(*fastaFile, recordChannel)
+	parseFasta(*fastaFile, *wStrict, recordChannel)
 
 	log.Infof("Waiting for workers to finish...")
 	wg.Wait()
@@ -98,7 +99,7 @@ type FastaRecord struct {
 	lineWrappingLength int
 }
 
-func parseFasta(file string, recordChannel chan<- FastaRecord) {
+func parseFasta(file string, wStrict bool, recordChannel chan<- FastaRecord) {
 	var err error
 	var fHandle *os.File
 
@@ -150,7 +151,7 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 
 		lineNumber++
 
-		newFastaID := validateHeader(lineNumber, lineStr, fastaIDs)
+		newFastaID := validateHeader(lineNumber, lineStr, fastaIDs, wStrict)
 
 		if newFastaID != "" && len(fastaIDs) > 1 { // Second fasta sequence starts
 			recordChannel <- FastaRecord{ID: fastaID, Seq: seqBuilder.String(), StartsAtLine: fastaIDLineNumber, lineWrappingLength: lineWrappingLength}
@@ -186,7 +187,7 @@ func parseFasta(file string, recordChannel chan<- FastaRecord) {
 	log.Infof("Parsed %d lines from fasta file", lineNumber)
 }
 
-func validateHeader(lineNumber int, line string, fastaIDs map[string]struct{}) string {
+func validateHeader(lineNumber int, line string, fastaIDs map[string]struct{}, wStrict bool) string {
 
 	if !strings.HasPrefix(line, ">") && len(fastaIDs) == 0 {
 		log.Fatal("Fasta file must start with a header line")
@@ -203,6 +204,11 @@ func validateHeader(lineNumber int, line string, fastaIDs map[string]struct{}) s
 	}
 
 	fastaID := fastaIDField[1:]
+
+	strictIDPattern := regexp.MustCompile(`^[A-Za-z]{1}\w+$`)
+	if wStrict && !strictIDPattern.MatchString(fastaID) {
+		log.Fatalf("Invalid FASTA ID '%s' near line #%d: IDs must match [A-Za-z][A-Za-z0-9_]", fastaID, lineNumber)
+	}
 
 	_, found := fastaIDs[fastaID]
 
