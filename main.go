@@ -24,7 +24,7 @@ func main() {
 	// Command line flags
 	threads := flag.Int("threads", 6, "Number of threads to use")
 	versionFlag := flag.Bool("version", false, "Show version")
-	fastaFile := flag.String("fasta", "", "Fasta file to process")
+	fastaFile := flag.String("fasta", "", "Fasta[.gz] file to process")
 	verbose := flag.Bool("verbose", false, "Enable verbose logging")
 	allowStop := flag.Bool("s", false, "Allow stop-codon denoted by '.' as the last character in a sequence")
 	allowSStop := flag.Bool("S", false, "Allow stop-codon denoted by '*' as the last character in a sequence")
