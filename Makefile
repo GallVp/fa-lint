@@ -1,7 +1,7 @@
 all: clean build bats
 
 build:
-	go build -ldflags "$$(<version)" -o bin/
+	go build -ldflags "$$(cat version)" -o bin/
 
 clean:
 	go mod tidy
@@ -21,6 +21,6 @@ cgo:
 cgo-build:
 	@mkdir -p bin
 	CGO_ENABLED=1 GOOS=$(OS) GOARCH=$(ARCH) \
-	go build -ldflags "$$(<version)" -o bin/fa-lint-$(OS)-$(ARCH)/
+	go build -ldflags "$$(cat version)" -o bin/fa-lint-$(OS)-$(ARCH)/
 	tar -czf bin/fa-lint-$(OS)-$(ARCH).tar.gz -C bin/fa-lint-$(OS)-$(ARCH) .
 	rm -rf bin/fa-lint-$(OS)-$(ARCH)
