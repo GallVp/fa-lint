@@ -25,3 +25,6 @@ jobs:
 
       - name: Build & Test
         run: make
+
+      - name: Print version
+        run: ./bin/fa-lint -version
