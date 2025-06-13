@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 1. Added strict check for Fasta IDs [#11](https://github.com/GallVp/fa-lint/issues/11)
 
+### `Fixed`
+
+1. Fixed an issue where the version was not loaded correctly during Build & Release GHA [#10](https://github.com/GallVp/fa-lint/issues/10)
+
 ## v1.1.0 - [09-June-2025]
 
 ### `Added`
