@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### `Added`
 
 1. Added strict check for Fasta IDs [#11](https://github.com/GallVp/fa-lint/issues/11)
+2. Added additional tests to cover edge cases
 
 ### `Fixed`
 

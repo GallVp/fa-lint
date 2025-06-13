@@ -229,3 +229,45 @@ load 'libs/bats-assert/load'
   assert_output --partial "Invalid FASTA ID"
   [ "$status" -eq 1 ]
 }
+
+@test "Invalid ID with -w flag should fail" {
+  run ./bin/fa-lint -w -fasta test/fasta/lax_id2.fasta
+  echo "$output"
+  assert_output --partial "Invalid FASTA ID"
+  [ "$status" -eq 1 ]
+}
+
+@test "Threads set to 0 should fail" {
+  run ./bin/fa-lint -threads 0 -fasta test/fasta/good.fasta
+  echo "$output"
+  assert_output --partial "Number of threads must be at least 1"
+  [ "$status" -eq 1 ]
+}
+
+@test "Using both -s and -S should fail" {
+  run ./bin/fa-lint -s -S -fasta test/fasta/good.fasta
+  echo "$output"
+  assert_output --partial "-s and -S are mutually exclusive"
+  [ "$status" -eq 1 ]
+}
+
+@test "Using -a without -s or -S should fail" {
+  run ./bin/fa-lint -a -fasta test/fasta/good.fasta
+  echo "$output"
+  assert_output --partial "-a can only be used in combination with -s or -S"
+  [ "$status" -eq 1 ]
+}
+
+@test "Header with only '>' should fail" {
+  run ./bin/fa-lint -fasta test/fasta/only_gt.fasta
+  echo "$output"
+  assert_output --partial "Fasta header does not contain a valid ID"
+  [ "$status" -eq 1 ]
+}
+
+@test "Non-ASCII character in sequence should fail" {
+  run ./bin/fa-lint -fasta test/fasta/non_ascii_seq.fasta
+  echo "$output"
+  assert_output --partial "Invalid sequence character near line #2"
+  [ "$status" -eq 1 ]
+}

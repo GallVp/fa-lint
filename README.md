@@ -38,7 +38,7 @@ fa-lint:
   -S    Allow stop-codon denoted by '*' as the last character in a sequence
   -a    Allow stop-codons anywhere in the sequence. Use in combination with -s or -S
   -fasta string
-        Fasta file to process
+        Fasta[.gz] file to process
   -s    Allow stop-codon denoted by '.' as the last character in a sequence
   -threads int
         Number of threads to use (default 6)
